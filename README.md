@@ -1,4 +1,10 @@
-# Tacotron-2:
+# style-token Tacotron2
+paper: [Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End Speech Synthesis](https://arxiv.org/abs/1803.09017)
+
+reference : [[Rayhane-mamah](https://github.com/Rayhane-mamah)/**Tacotron-2**]
+
+****
+
 ### Note
 
 - In our server, the default configuration will lead to OOM error...
