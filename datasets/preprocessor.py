@@ -45,6 +45,43 @@ def build_from_path(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12
     return [future.result() for future in tqdm(futures) if future.result() is not None]
 
 
+def build_from_path_thchs30(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n_jobs=12, tqdm=lambda x: x):
+    """
+    Preprocesses the speech dataset from a gven input path to given output directories
+
+    Args:
+        - hparams: hyper parameters
+        - input_dir: input directory that contains the files to prerocess
+        - mel_dir: output directory of the preprocessed speech mel-spectrogram dataset
+        - linear_dir: output directory of the preprocessed speech linear-spectrogram dataset
+        - wav_dir: output directory of the preprocessed speech audio dataset
+        - n_jobs: Optional, number of worker process to parallelize across
+        - tqdm: Optional, provides a nice progress bar
+
+    Returns:
+        - A list of tuple describing the train examples. this should be written to train.txt
+    """
+
+    # We use ProcessPoolExecutor to parallelize across processes, this is just for
+    # optimization purposes and it can be omited
+    executor = ProcessPoolExecutor(max_workers=n_jobs)
+    futures = []
+    index = 1
+
+    for input_dir in input_dirs:
+        trn_files = glob.glob(os.path.join(input_dir, 'data', '*.trn2'))
+        for trn in trn_files:
+            with open(trn) as f:
+                text = f.readline().strip('\n')
+                wav_path = trn[:-5]  # trn2 filename: A11_001.wav.trn2
+                basename = os.path.basename(wav_path)
+                futures.append(executor.submit(partial(_process_utterance, mel_dir, linear_dir, wav_dir,
+                                                       basename, wav_path, text, hparams)))
+                index += 1
+
+    return [future.result() for future in tqdm(futures) if future.result() is not None]
+
+
 def _process_utterance(mel_dir, linear_dir, wav_dir, index, wav_path, text, hparams):
     """
 	Preprocesses a single utterance wav/text pair

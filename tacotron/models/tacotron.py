@@ -140,16 +140,21 @@ class Tacotron():
 
                     # style token layers
                     self.style_embedding_table = tf.get_variable(
-                        'style_token_embedding', [hp.tacotron_n_style_token, hp.embedding_dim], dtype=tf.float32
+                        'style_token_embedding', [hp.tacotron_n_style_token, hp.embedding_dim], dtype=tf.float32,
+                        initializer=tf.truncated_normal_initializer(stddev=0.5)
                     )
+
+                    # in order to synthese audio in random weights, style_encoder_outputs[-1]==style_embedding_table[-1]
                     if (is_training or is_evaluating) and style_transfer:
                         style_encoder_cell = TacotronReferenceEncoderCell(
-                            ReferenceEncoder(hp, layer_sizes=hp.tacotron_reference_layer_size),
-                            tf.nn.rnn_cell.GRUCell(num_units=hp.encoder_lstm_units * 2),
-                            StyleTokenLayer(output_size=hp.encoder_lstm_units * 2, is_training=is_training),
+                            ReferenceEncoder(hp, layer_sizes=hp.tacotron_reference_layer_size, is_training=is_training,
+                                             activation=tf.nn.relu),
+                            tf.nn.rnn_cell.GRUCell(num_units=hp.tacotron_reference_gru_hidden_size),
+                            StyleTokenLayer(output_size=hp.tacotron_style_encoder_outputs_size,
+                                            is_training=is_training),
                             hparams=hp
                         )
-                        # style_encoder_outputs: [batch_size,1,hp.encoder_lstm_units]
+                        # style_encoder_outputs: [batch_size,1,hp.encoder_lstm_units*2]
                         style_encoder_outputs = style_encoder_cell(tower_mel_targets[i],
                                                                    input_lengths=tower_targets_lengths[i],
                                                                    style_token_embedding=self.style_embedding_table)
@@ -159,8 +164,9 @@ class Tacotron():
                         style_encoder_outputs = tf.tile(style_encoder_outputs, multiples=[1, seq_len, 1])
                         encoder_outputs = tf.concat([encoder_outputs, style_encoder_outputs], axis=-1)  # concat
                     elif (not is_training) and (not is_evaluating) and style_transfer:  # synthesis with style transfer
-                        if hp.tacotron_style_alignment is not None and len(
-                                hp.tacotron_style_alignment) == hp.tacotron_n_style_token:
+                        if hp.tacotron_style_alignment is not None and \
+                                len(hp.tacotron_style_alignment) == hp.tacotron_n_style_token:
+                            # random weights
                             # [n_style_tokens,]
                             style_alignment = tf.convert_to_tensor(hp.tacotron_style_alignment, dtype=tf.float32)
                             # [n_style_tokens,1]*[n_style_tokens, embed_size] -> [n_style_tokens,embed_size] -> [embed_size,]
@@ -173,15 +179,22 @@ class Tacotron():
                             # encoder_outputs = encoder_outputs + style_context  # element-wise add
                             seq_len = tf.shape(encoder_outputs)[1]
                             style_context = tf.tile(style_context, multiples=[1, seq_len, 1])
+
+                            # dense?
+                            # style_context = tf.layers.dense(style_context, units=hp.tacotron_style_encoder_outputs_size,
+                            #                                 activation=tf.nn.tanh)
                             encoder_outputs = tf.concat([encoder_outputs, style_context], axis=-1)  # concat
                         elif len(tower_mel_targets) > 0 and tower_mel_targets[i] is not None:
+                            # reference audio
                             style_encoder_cell = TacotronReferenceEncoderCell(
-                                ReferenceEncoder(hp, layer_sizes=hp.tacotron_reference_layer_size),
-                                tf.nn.rnn_cell.GRUCell(num_units=hp.encoder_lstm_units * 2),
-                                StyleTokenLayer(output_size=hp.encoder_lstm_units * 2, is_training=is_training),
+                                ReferenceEncoder(hp, layer_sizes=hp.tacotron_reference_layer_size,
+                                                 is_training=is_training, activation=tf.nn.relu),
+                                tf.nn.rnn_cell.GRUCell(num_units=hp.encoder_lstm_units),
+                                StyleTokenLayer(output_size=hp.tacotron_style_encoder_outputs_size,
+                                                is_training=is_training),
                                 hparams=hp
                             )
-                            # style_encoder_outputs: [batch_size,1,hp.encoder_lstm_units]
+                            # style_encoder_outputs: [batch_size,1,hp.encoder_lstm_units*2(hp.tacotron_style_encoder_outputs_size)]
                             style_encoder_outputs = style_encoder_cell(tower_mel_targets[i],
                                                                        # audio style reference audio
                                                                        input_lengths=tower_targets_lengths[i],

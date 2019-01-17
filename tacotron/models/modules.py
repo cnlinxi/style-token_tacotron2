@@ -225,20 +225,49 @@ class EncoderRNN:
             return tf.concat(outputs, axis=2)  # Concat and return forward + backward outputs
 
 
+def shape_list(x):
+    """Return list of dims, statically where possible."""
+    x = tf.convert_to_tensor(x)
+
+    # If unknown rank, return dynamic shape
+    if x.get_shape().dims is None:
+        return tf.shape(x)
+
+    static = x.get_shape().as_list()
+    shape = tf.shape(x)
+
+    ret = []
+    for i in range(len(static)):
+        dim = static[i]
+        if dim is None:
+            dim = shape[i]
+        ret.append(dim)
+    return ret
+
+
 class ReferenceEncoder:
-    def __init__(self, hparams, layer_sizes=(32, 32, 64, 64, 128, 128)):
+    def __init__(self, hparams, is_training=True, activation=tf.nn.relu, layer_sizes=(32, 32, 64, 64, 128, 128)):
         self._layer_sizes = layer_sizes
         self._n_layers = len(layer_sizes)
         self._hparams = hparams
+        self._is_training = is_training
+        self._activation = activation
 
     def __call__(self, inputs):
+        # CNN stacks
         # inputs: [batch_size,n_frame,frame_size]
         x = tf.expand_dims(inputs, axis=-1)
         for i in range(self._n_layers):
             with tf.variable_scope('reference_encoder_{}'.format(i)):
                 x = tf.layers.conv2d(x, filters=self._layer_sizes[i], kernel_size=3, strides=(2, 2), padding='same',
                                      activation=tf.nn.relu)
-                x = tf.layers.batch_normalization(x)
+                x = tf.layers.batch_normalization(x, training=self._is_training)
+                if self._activation is not None:
+                    x = self._activation(x)
+        # x: [batch_size,seq_len,embed_size,channels]
+        shapes = shape_list(x)
+        # x: [batch_size,seq_len,embed_size*channels], preserving the output time resolution
+        x = tf.reshape(x, shapes[:-2] + [shapes[2] * shapes[3]])
         return x
 
 
@@ -284,11 +313,14 @@ class StyleTokenLayer:
         self._scope = 'style_token' if scope is None else scope
 
     def __call__(self, inputs, token_embedding):
-        # inputs: [batch_size,1,output_size], query
+        # inputs: [batch_size,1,hp.tacotron_reference_gru_hidden_size], query
+        # output: [batch_size,1,attention_output_size]
         x = inputs
         with tf.variable_scope(self._scope):
+            # print('x: {}'.format(x))
+            # print('token_embedding: {}'.format(token_embedding))
             x, _ = multihead_attention(queries=x, keys=token_embedding, num_units=self._output_size, dropout_rate=0.5,
-                                       is_training=self._is_training,num_heads=2)
+                                       is_training=self._is_training, num_heads=4)
             return x
 
 
@@ -496,9 +528,9 @@ def multihead_attention(queries,
             num_units = queries.get_shape().as_list[-1]
 
         # Linear projections
-        Q = tf.layers.dense(queries, num_units, activation=tf.nn.relu)  # (N, T_q, C)
-        K = tf.layers.dense(keys, num_units, activation=tf.nn.relu)  # (N, T_k, C)
-        V = tf.layers.dense(keys, num_units, activation=tf.nn.relu)  # (N, T_k, C)
+        Q = tf.layers.dense(queries, num_units, activation=tf.nn.tanh)  # (N, T_q, C)
+        K = tf.layers.dense(keys, num_units, activation=tf.nn.tanh)  # (N, T_k, C)
+        V = tf.layers.dense(keys, num_units, activation=tf.nn.tanh)  # (N, T_k, C)
 
         # Split and concat
         Q_ = tf.concat(tf.split(Q, num_heads, axis=2), axis=0)  # (h*N, T_q, C/h)
@@ -552,7 +584,8 @@ def multihead_attention(queries,
 
         # ADD & NORM
         # Residual connection
-        outputs += queries
+        # extra op ?
+        outputs += Q  # ?
 
         # Normalize
         outputs = normalize(outputs)  # (N, T_q, C)

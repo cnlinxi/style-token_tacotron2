@@ -55,19 +55,25 @@ class TacotronReferenceEncoderCell:
         batch_size = tf.shape(inputs)[0]
         # conv_output: [batch_size,n_frames,2,128]
         conv_output = self._convolutions(inputs)
-        # conv_output_reshaped: [batch_size,n_frames,2*128]
-        conv_output_reshaped = tf.reshape(conv_output, shape=(
-            batch_size, -1,
-            2 * self._hparams.tacotron_reference_layer_size[-1]))  # conv2d, same, (?,?,2,128(layer_size[-1]))
-        # state: [batch_size, output_size]
+        # # conv_output_reshaped: [batch_size,n_frames,2*128]
+        # conv_output_reshaped = tf.reshape(conv_output, shape=(
+        #     batch_size, -1,
+        #     2 * self._hparams.tacotron_reference_layer_size[-1]))  # conv2d, same, (?,?,2,128(layer_size[-1]))
+
+        conv_output_reshaped = conv_output  # reshape in self._convolutions
+        # output: [batch_size,seq_len,hidden_size], hidden_state for every time step
+        # state: [2,batch_size, output_size](c,h)
         output, state = tf.nn.dynamic_rnn(self._cell, conv_output_reshaped, sequence_length=input_lengths,
                                           dtype=tf.float32)
-        # state: [batch_size,1,output_size], query
-        state = tf.expand_dims(state, axis=1)
+        # state[0], c: [batch_size,1,tacotron_reference_gru_hidden_size], query
+        # state = tf.expand_dims(state, axis=1)
+        state_ = tf.expand_dims(output[:, -1, :], axis=1)
+        # print('state_: {}'.format(state_))
         # style_token_embedding: [batch_size,tacotron_n_style_token,style_embedding_size]
         style_token_embedding = tf.tile(tf.expand_dims(style_token_embedding, axis=0),
                                         multiples=[batch_size, 1, 1])
-        state = self._style_token_layer(state, style_token_embedding)
+        # state: [batch_size,1,hp.encoder_lstm_units * 2]
+        state = self._style_token_layer(state_, style_token_embedding)
         return state
 
 
