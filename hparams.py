@@ -256,8 +256,8 @@ hparams = tf.contrib.training.HParams(
     tacotron_reference_layer_size=(32, 32, 64, 64, 128, 128),
     tacotron_reference_gru_hidden_size=128,
     tacotron_style_encoder_outputs_size=512,
+    # tacotron_style_alignment=[0.3, 0.8, 0., 0., 0., 0., 0., 0., 0., 0.],  #preferred to use tacotron_style_alignment
     tacotron_style_reference_audio='reference_audio/lin.wav.npy',
-    # tacotron_style_alignment=[0.3, 0.8, 0., 0., 0., 0., 0., 0., 0., 0.],
     tacotron_style_alignment=None,
 
     # Learning rate schedule

@@ -317,6 +317,7 @@ class StyleTokenLayer:
         # output: [batch_size,1,attention_output_size]
         x = inputs
         with tf.variable_scope(self._scope):
+            token_embedding = tf.nn.tanh(token_embedding)  # tanh activation before attention
             # print('x: {}'.format(x))
             # print('token_embedding: {}'.format(token_embedding))
             x, _ = multihead_attention(queries=x, keys=token_embedding, num_units=self._output_size, dropout_rate=0.5,
@@ -528,9 +529,9 @@ def multihead_attention(queries,
             num_units = queries.get_shape().as_list[-1]
 
         # Linear projections
-        Q = tf.layers.dense(queries, num_units, activation=tf.nn.tanh)  # (N, T_q, C)
-        K = tf.layers.dense(keys, num_units, activation=tf.nn.tanh)  # (N, T_k, C)
-        V = tf.layers.dense(keys, num_units, activation=tf.nn.tanh)  # (N, T_k, C)
+        Q = tf.layers.dense(queries, num_units, use_bias=False)  # (N, T_q, C)
+        K = tf.layers.dense(keys, num_units, use_bias=False)  # (N, T_k, C)
+        V = tf.layers.dense(keys, num_units, use_bias=False)  # (N, T_k, C)
 
         # Split and concat
         Q_ = tf.concat(tf.split(Q, num_heads, axis=2), axis=0)  # (h*N, T_q, C/h)
@@ -585,10 +586,10 @@ def multihead_attention(queries,
         # ADD & NORM
         # Residual connection
         # extra op ?
-        outputs += Q  # ?
+        # outputs += Q  # ?
 
         # Normalize
-        outputs = normalize(outputs)  # (N, T_q, C)
+        # outputs = normalize(outputs)  # (N, T_q, C)
 
     return outputs, alignment
 

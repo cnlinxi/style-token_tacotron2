@@ -45,7 +45,7 @@ class Tacotron():
         """
         if mel_targets is None and stop_token_targets is not None:
             raise ValueError('no multi targets were provided but token_targets were given')
-        if mel_targets is not None and stop_token_targets is None and not gta:
+        if mel_targets is not None and stop_token_targets is None and not gta and not style_transfer:
             raise ValueError('Mel targets are provided without corresponding token_targets')
         if not gta and self._hparams.predict_linear == True and linear_targets is None and is_training:
             raise ValueError(
@@ -189,7 +189,7 @@ class Tacotron():
                             style_encoder_cell = TacotronReferenceEncoderCell(
                                 ReferenceEncoder(hp, layer_sizes=hp.tacotron_reference_layer_size,
                                                  is_training=is_training, activation=tf.nn.relu),
-                                tf.nn.rnn_cell.GRUCell(num_units=hp.encoder_lstm_units),
+                                tf.nn.rnn_cell.GRUCell(num_units=hp.tacotron_reference_gru_hidden_size),
                                 StyleTokenLayer(output_size=hp.tacotron_style_encoder_outputs_size,
                                                 is_training=is_training),
                                 hparams=hp

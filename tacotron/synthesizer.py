@@ -55,7 +55,7 @@ class Synthesizer:
         self.inputs = inputs
         self.input_lengths = input_lengths
         self.targets = targets
-        self.target_lengths=target_lengths
+        self.target_lengths = target_lengths
         self.split_infos = split_infos
 
         log('Loading checkpoint: %s' % checkpoint_path)
@@ -118,11 +118,12 @@ class Synthesizer:
             feed_dict[self.targets] = target_seqs
             assert len(np_targets) == len(texts)
 
-        if self.style_transfer and hparams.tacotron_style_reference_audio is not None:
+        if self.style_transfer and hparams.tacotron_style_reference_audio is not None and\
+                hparams.tacotron_style_alignment is None:
             # only support one style reference audio
             if hparams.tacotron_style_reference_audio[-4:] == '.wav':
                 wav = audio.load_wav(hparams.tacotron_style_reference_audio, sr=hparams.sample_rate)
-                np_targets = audio.melspectrogram(wav, self._hparams)
+                np_targets = audio.melspectrogram(wav, self._hparams).astype(np.float32).T
             else:
                 np_targets = np.load(hparams.tacotron_style_reference_audio)
             target_lengths = len(np_targets)
@@ -142,7 +143,7 @@ class Synthesizer:
                     max_target_len  # Not really used but setting it in case for future development maybe?
 
             feed_dict[self.targets] = target_seqs
-            feed_dict[self.target_lengths]=target_lengths
+            feed_dict[self.target_lengths] = target_lengths
             assert len(np_targets) == len(texts)
 
         feed_dict[self.split_infos] = np.asarray(split_infos, dtype=np.int32)
