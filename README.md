@@ -11,7 +11,7 @@ reference : [Rayhane-mamah/Tacotron-2](https://github.com/Rayhane-mamah/Tacotron
 
 First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct this experiment. Please download&unzip it and put it as followed:
 
-├── style-token_tacotron// project root dir
+├── style-token_tacotron  // project root dir
 
 │   ├── datasets
 
@@ -25,7 +25,7 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 
 ......
 
-│   ├── **data_thchs30**  // THCHS-30 dataset
+│   ├── **data_thchs30**   // THCHS-30 dataset
 
 ......
 
