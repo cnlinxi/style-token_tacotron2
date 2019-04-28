@@ -12,11 +12,11 @@ reference : [Rayhane-mamah/Tacotron-2](https://github.com/Rayhane-mamah/Tacotron
 First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct this experiment. Please download&unzip it and put it as followed:
 
 ├── style-token_tacotron               // project root dir
-│   ├── datasets                           
-│   │   ├── \__init__.py                   
-│   │   ├── audio.py                     
-│   │   ├── preprocessor.py        
-│   │   ├── wavenet_preprocessor.py  
+│   ├── datasets
+│   │   ├── \__init__.py 
+│   │   ├── audio.py 
+│   │   ├── preprocessor.py
+│   │   ├── wavenet_preprocessor.py
 ......
 │   ├── **data_thchs30**                              // THCHS-30 dataset
 ......
