@@ -1,35 +1,52 @@
 # style-token Tacotron2
 paper: [Style Tokens: Unsupervised Style Modeling, Control and Transfer in End-to-End Speech Synthesis](https://arxiv.org/abs/1803.09017)
 
-reference : [[Rayhane-mamah](https://github.com/Rayhane-mamah)/**Tacotron-2**]
+reference : [Rayhane-mamah/Tacotron-2](https://github.com/Rayhane-mamah/Tacotron-2)
 
 ****
 
-### Note
+### How to use it?
 
-- In our server, the default configuration will lead to OOM error...
+#### preprocess data
 
-  For decrease memory usage, please follow some instructions as followed:
+First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct this experiment. Please download&unzip it and put it as followed:
 
-  - In hparams.py: increase `outputs_per_step` . Max: 3, default: 1.
-  - In hparams.py: set `clip_mels_length` as `True`. default: False. If you still get OOM error, decrease `max_mel_frames`. default: 1000.
-  - In tacotron/feeder.py: decrease `_batches_per_group`. default: 64, the previous version is 32.
+├── style-token_tacotron               // project root dir
+│   ├── datasets                           
+│   │   ├── \__init__.py                   
+│   │   ├── audio.py                     
+│   │   ├── preprocessor.py        
+│   │   ├── wavenet_preprocessor.py  
+......
+│   ├── **data_thchs30**                              // THCHS-30 dataset
+......
 
-- In hparams.py, `trim_top_db` related to the phenomenon that wav generation stops suddenly, also related to the reduction of training set duration. Recommand value: 63, default: 23. In default setting, if you inverse processed wav file, the sound will stop suddenly. This also lead to reducing training set duration.
+Feel free to use other dataset.
 
-- In hparams.py, set `cleaners` to `basic_cleaners` if you train model in mandarin.
+Second:
 
-- Multi-GPU version seems to be not accelerated.
+```shell
+python preprocess.py
+```
 
-### IN TEST
+#### Train Style Token of Tacotron-2
 
-- min training set duration: 100%: 10:/tacotron2; 75%:13:/tacotron2_share75 ;50%: 10:/tacotron2_share50;
-- long sentences(clip_mels_length=False): short: 10:/tacotron2; long: 13:/tacotron_long_sentences
-- min training steps: 10:/tacotron2 and 10:/tacotron2_share50 save every checkpoint files.
+```
+python train.py
+```
 
-### To-Do
+#### Speech synthesis using trained model
 
-*check if not trim_max*: long senteneces
+I train this model to *180k* steps and get acceptable performance. Maybe it doesn't need to take so many steps, I forgot to stop it. After training this model, then pick one speech audio(I select one audio in internal dataset which is about *3 s* and it's announcer quality). Specifying its path in the **'tacotron_style_reference_audio' of hparams.py**. Then:
+
+```
+python synthesize.py
+```
+
+**NOTE**
+
+1. Because we use Chinese Corpus to conduct experiment, you should transform Chinese to *pinyin*(A Chinese character phonetic system). For example, you can use [this](https://github.com/mozillazg/python-pinyin) to achieve pinyin.
+2. You can change some hyper parameters in **hparams.py** including number of style tokens, etc.
 
 ****
 

@@ -252,12 +252,12 @@ hparams = tf.contrib.training.HParams(
     # % of data to keep as test data, if None, tacotron_test_batches must be not None. (5% is enough to have a good idea about overfit)
     tacotron_test_batches=None,  # number of test batches.
 
-    tacotron_n_style_token=10,
-    tacotron_reference_layer_size=(32, 32, 64, 64, 128, 128),
-    tacotron_reference_gru_hidden_size=128,
-    tacotron_style_encoder_outputs_size=512,
-    # tacotron_style_alignment=[0.3, 0.8, 0., 0., 0., 0., 0., 0., 0., 0.],  #preferred to use tacotron_style_alignment
+    tacotron_n_style_token=10,  # number of style tokens
+    tacotron_reference_layer_size=(32, 32, 64, 64, 128, 128),  # filters of style token layer
+    tacotron_reference_gru_hidden_size=128,  # hidden size
+    tacotron_style_encoder_outputs_size=512,  # dim of style token layer output
     tacotron_style_reference_audio='reference_audio/lin.wav.npy',
+    # manually specify style token alignment weights instead of getting them from reference audio
     tacotron_style_alignment=None,
 
     # Learning rate schedule
@@ -348,29 +348,33 @@ hparams = tf.contrib.training.HParams(
 
     # Eval sentences (if no eval text file was specified during synthesis, these sentences are used for eval)
     sentences=[
-        # From July 8, 2017 New York Times:
-        'Scientists at the CERN laboratory say they have discovered a new particle.',
-        'There\'s a way to measure the acute emotional intelligence that has never gone out of style.',
-        'President Trump met with other leaders at the Group of 20 conference.',
-        'The Senate\'s bill to repeal and replace the Affordable Care Act is now imperiled.',
-        # From Google's Tacotron example page:
-        'Generative adversarial network or variational auto-encoder.',
-        'Basilar membrane and otolaryngology are not auto-correlations.',
-        'He has read the whole thing.',
-        'He reads books.',
-        'He thought it was time to present the present.',
-        'Thisss isrealy awhsome.',
-        'Punctuation sensitivity, is working.',
-        'Punctuation sensitivity is working.',
-        "Peter Piper picked a peck of pickled peppers. How many pickled peppers did Peter Piper pick?",
-        "She sells sea-shells on the sea-shore. The shells she sells are sea-shells I'm sure.",
-        "Tajima Airport serves Toyooka.",
-        # From The web (random long utterance)
-        'Sequence to sequence models have enjoyed great success in a variety of tasks such as machine translation, speech recognition, and text summarization.\
-        This project covers a sequence to sequence model trained to predict a speech representation from an input sequence of characters. We show that\
-        the adopted architecture is able to perform this task with wild success.',
-        'Thank you so much for your support!',
+        'chun1 mian2 bu4 jue2 xiao3 ， chu3 chu4 wen2 ti2 niao3 。 '
     ]
+
+    # sentences=[
+    #     # From July 8, 2017 New York Times:
+    #     'Scientists at the CERN laboratory say they have discovered a new particle.',
+    #     'There\'s a way to measure the acute emotional intelligence that has never gone out of style.',
+    #     'President Trump met with other leaders at the Group of 20 conference.',
+    #     'The Senate\'s bill to repeal and replace the Affordable Care Act is now imperiled.',
+    #     # From Google's Tacotron example page:
+    #     'Generative adversarial network or variational auto-encoder.',
+    #     'Basilar membrane and otolaryngology are not auto-correlations.',
+    #     'He has read the whole thing.',
+    #     'He reads books.',
+    #     'He thought it was time to present the present.',
+    #     'Thisss isrealy awhsome.',
+    #     'Punctuation sensitivity, is working.',
+    #     'Punctuation sensitivity is working.',
+    #     "Peter Piper picked a peck of pickled peppers. How many pickled peppers did Peter Piper pick?",
+    #     "She sells sea-shells on the sea-shore. The shells she sells are sea-shells I'm sure.",
+    #     "Tajima Airport serves Toyooka.",
+    #     # From The web (random long utterance)
+    #     'Sequence to sequence models have enjoyed great success in a variety of tasks such as machine translation, speech recognition, and text summarization.\
+    #     This project covers a sequence to sequence model trained to predict a speech representation from an input sequence of characters. We show that\
+    #     the adopted architecture is able to perform this task with wild success.',
+    #     'Thank you so much for your support!',
+    # ]
 
 )
 

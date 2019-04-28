@@ -118,10 +118,10 @@ class Synthesizer:
             feed_dict[self.targets] = target_seqs
             assert len(np_targets) == len(texts)
 
-        if self.style_transfer and hparams.tacotron_style_reference_audio is not None and\
+        if self.style_transfer and hparams.tacotron_style_reference_audio is not None and \
                 hparams.tacotron_style_alignment is None:
             # only support one style reference audio
-            if hparams.tacotron_style_reference_audio[-4:] == '.wav':
+            if hparams.tacotron_style_reference_audio[-4:].lower() == '.wav':
                 wav = audio.load_wav(hparams.tacotron_style_reference_audio, sr=hparams.sample_rate)
                 np_targets = audio.melspectrogram(wav, self._hparams).astype(np.float32).T
             else:
