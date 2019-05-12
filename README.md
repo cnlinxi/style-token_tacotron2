@@ -25,7 +25,7 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 
 ......
 
-│   ├── **data_thchs30**   // THCHS-30 dataset
+│   ├── **data_thchs30**   // THCHS-30 dataset, this is a folder. There is a 'data' folder under 'data_thchs30' directory
 
 ......
 
