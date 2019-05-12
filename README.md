@@ -15,7 +15,7 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 
 │   ├── datasets
 
-│   │   ├── \__init\__.py 
+│   │   ├── \_\_init\_\_.py 
 
 │   │   ├── audio.py 
 
@@ -25,7 +25,13 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 
 ......
 
-│   ├── **data_thchs30**   // THCHS-30 dataset, this is a folder. There is a 'data' folder under 'data_thchs30' directory
+│   ├── **data_thchs30**   // THCHS-30 dataset, this is *a folder*. There is a 'data' folder under 'data_thchs30' directory
+
+│   │   ├── data
+
+│   │   │   ├── \*.wav
+
+│   │   │   ├── \*.trn
 
 ......
 
