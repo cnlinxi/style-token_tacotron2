@@ -69,11 +69,11 @@ def build_from_path_thchs30(hparams, input_dirs, mel_dir, linear_dir, wav_dir, n
     index = 1
 
     for input_dir in input_dirs:
-        trn_files = glob.glob(os.path.join(input_dir, 'data', '*.trn2'))
+        trn_files = glob.glob(os.path.join(input_dir, 'data', '*.trn'))
         for trn in trn_files:
             with open(trn) as f:
                 text = f.readline().strip('\n')
-                wav_path = trn[:-5]  # trn2 filename: A11_001.wav.trn2
+                wav_path = trn[:-4]  # trn filename: A11_001.wav.trn
                 basename = os.path.basename(wav_path)
                 futures.append(executor.submit(partial(_process_utterance, mel_dir, linear_dir, wav_dir,
                                                        basename, wav_path, text, hparams)))
