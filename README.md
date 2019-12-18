@@ -13,12 +13,12 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 
 	style-token_tacotron  // project root dir
 	├── datasets
-	│   └── \_\_init\_\_.py 
+	│   └── __init__.py 
 	│   └── audio.py 
 	│   └── preprocessor.py  
 	│   └── wavenet_preprocessor.py
 	...
-	├── **data_thchs30**   // THCHS-30 dataset, this is *a folder*. There is a 'data' folder under 'data_thchs30' directory
+	├── data_thchs30   // THCHS-30 dataset, this is *a folder*. There is a 'data' folder under 'data_thchs30' directory
 	│   └── data
 	│       ├── \*.wav
 	│       └── \*.trn
