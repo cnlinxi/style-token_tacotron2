@@ -10,7 +10,7 @@ reference : [Rayhane-mamah/Tacotron-2](https://github.com/Rayhane-mamah/Tacotron
 #### preprocess data
 
 First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct this experiment. Please download&unzip it and put it as followed:
-`
+
 	style-token_tacotron  // project root dir
 	├── datasets
 	│   └── \_\_init\_\_.py 
@@ -23,7 +23,7 @@ First: We use [THCHS-30(Chinese Corpus)](http://www.openslr.org/18) to conduct t
 	│       ├── \*.wav
 	│       └── \*.trn
 	...
-`
+
 
 Feel free to use other dataset.
 
