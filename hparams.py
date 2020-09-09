@@ -243,7 +243,7 @@ hparams = tf.contrib.training.HParams(
     # Whether to use cpu as support to gpu for decoder computation (Not recommended: may cause major slowdowns! Only use when critical!)
 
     # train/test split ratios, mini-batches sizes
-    tacotron_batch_size=2,  # number of training samples on each training steps
+    tacotron_batch_size=32,  # number of training samples on each training steps
     # Tacotron Batch synthesis supports ~16x the training batch size (no gradients during testing).
     # Training Tacotron with unmasked paddings makes it aware of them, which makes synthesis times different from training. We thus recommend masking the encoder.
     tacotron_synthesis_batch_size=1,
